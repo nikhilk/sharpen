@@ -5,6 +5,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{1095D2
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMVC", "Server\WebMVC\WebMVC.csproj", "{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{F338260C-B8B9-41EB-B239-FD971958D54F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runtime", "Client\Runtime\Runtime.csproj", "{8780581F-7C26-4B64-9235-BA1C458DF36E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,11 +19,16 @@ Global
 		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8780581F-7C26-4B64-9235-BA1C458DF36E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8780581F-7C26-4B64-9235-BA1C458DF36E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8780581F-7C26-4B64-9235-BA1C458DF36E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8780581F-7C26-4B64-9235-BA1C458DF36E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E} = {1095D2A0-4D07-4CBB-A11A-50D533B20C91}
+		{8780581F-7C26-4B64-9235-BA1C458DF36E} = {F338260C-B8B9-41EB-B239-FD971958D54F}
 	EndGlobalSection
 EndGlobal

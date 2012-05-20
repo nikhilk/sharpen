@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8780581F-7C26-4B64-9235-BA1C458DF36E}</ProjectGuid>
+    <ToolsPath>..\..\..\tools</ToolsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\bin\Debug</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\bin\Release</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Base\BCL.js" />
+    <Content Include="Base\ComponentModel.js" />
+    <Content Include="Base\Global.js" />
+    <Content Include="Base\Debug.js" />
+    <Content Include="Base\String.js" />
+    <Content Include="Base\Misc.js" />
+    <Content Include="Base\Error.js" />
+    <Content Include="Base\Parse.js" />
+    <Content Include="Base\Enumerate.js" />
+    <Content Include="Base\Delegate.js" />
+    <Content Include="Base\Startup.js" />
+    <Content Include="Base\TypeSystem.js" />
+    <Content Include="Bootstrap\ScriptLoader.js" />
+    <Content Include="Global.js" />
+    <Content Include="Core.js" />
+    <Content Include="Global\Date.js" />
+    <Content Include="Global\Number.js" />
+    <Content Include="Global\Culture.js" />
+    <Content Include="Loader.js" />
+  </ItemGroup>
+  <Target Name="Build">
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /debug /d:DEBUG /crlf /input:$(ProjectDir)Loader.js /output:$(OutputPath)\Sharpen.Loader.debug.js" />
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /stripCommentsOnly /crlf /input:$(ProjectDir)Loader.js /output:$(OutputPath)\Sharpen.Loader.rel.js" />
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /debug /d:DEBUG /crlf /input:$(ProjectDir)Core.js /output:$(OutputPath)\Sharpen.debug.js" />
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /stripCommentsOnly /crlf /input:$(ProjectDir)Core.js /output:$(OutputPath)\Sharpen.rel.js" />
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /debug /d:DEBUG /crlf /input:$(ProjectDir)Global.js /output:$(OutputPath)\Sharpen.Global.debug.js" />
+    <Exec Command="$(ToolsPath)\sspp.exe /nologo /stripCommentsOnly /crlf /input:$(ProjectDir)Global.js /output:$(OutputPath)\Sharpen.Global.rel.js" />
+
+    <Exec Command="$(ToolsPath)\ajaxmin.exe -clobber:true -hc $(OutputPath)\Sharpen.Loader.rel.js -out $(OutputPath)\Sharpen.Loader.js" />
+    <Exec Command="$(ToolsPath)\ajaxmin.exe -clobber:true -hc $(OutputPath)\Sharpen.rel.js -out $(OutputPath)\Sharpen.js" />
+    <Exec Command="$(ToolsPath)\ajaxmin.exe -clobber:true -hc $(OutputPath)\Sharpen.Global.rel.js -out $(OutputPath)\Sharpen.Global.js" />
+  </Target>
+  <Target Name="Clean">
+    <Exec Command="rd /s /q $(OutputPath)" Condition="Exists($(OutputPath))" />
+  </Target>
+  <Target Name="Rebuild" DependsOnTargets="Clean;Build" />
+</Project>
