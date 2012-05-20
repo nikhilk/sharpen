@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{1095D2A0-4D07-4CBB-A11A-50D533B20C91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebMVC", "Server\WebMVC\WebMVC.csproj", "{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{ECBDD6E0-44E4-42AA-81C1-E510C9798F8E} = {1095D2A0-4D07-4CBB-A11A-50D533B20C91}
+	EndGlobalSection
+EndGlobal
