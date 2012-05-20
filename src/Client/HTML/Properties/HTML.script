@@ -1,0 +1,7 @@
+//! Sharpen Framework for HTML Applications
+//
+
+(function() {
+"use strict";
+#include[as-is] "%code%"
+})();
