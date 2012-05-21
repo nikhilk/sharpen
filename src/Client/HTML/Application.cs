@@ -16,7 +16,7 @@ namespace Sharpen.Html {
     /// services like settings, IoC, and pub/sub events-based messaging for decoupled
     /// components.
     /// </summary>
-    public sealed partial class Application : IApplication, IContainer {
+    public sealed partial class Application : IApplication, IContainer, IEventManager {
 
         /// <summary>
         /// The current Application instance.
@@ -24,9 +24,11 @@ namespace Sharpen.Html {
         public static readonly Application Current = new Application();
 
         private Dictionary<string, object> _catalog;
+        private Dictionary<string, Dictionary<string, Callback>> _eventHandlers;
 
         private Application() {
             _catalog = new Dictionary<string, object>();
+            _eventHandlers = new Dictionary<string, Dictionary<string, Callback>>();
         }
 
         private string GetTypeKey(Type type) {
@@ -105,6 +107,87 @@ namespace Sharpen.Html {
             Debug.Assert(objectInstance != null, "Expected an object instance when registering objects.");
 
             _catalog[GetTypeKey(objectType)] = objectInstance;
+        }
+
+        #endregion
+
+        #region Implementation of IEventManager
+
+        /// <summary>
+        /// Raises the specified event. The type of the event arguments is used to determine
+        /// which subscribers the event is routed to.
+        /// </summary>
+        /// <param name="eventArgs">The event arguments containing event-specific data.</param>
+        public void PublishEvent(EventArgs eventArgs) {
+            Debug.Assert(eventArgs != null, "Must specify an eventArgs when raising an event.");
+
+            string eventTypeKey = GetTypeKey(eventArgs.GetType());
+
+            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[eventTypeKey];
+            if (eventHandlerMap != null) {
+                // TODO: Handle the case where a subscriber unsubscribes while we're iterating
+                //       Should we do it here by copying/cloning the list, or should we handle it
+                //       by completing unsubscribe asynchronously?
+                foreach (KeyValuePair<string, Callback> eventHandlerEntry in eventHandlerMap) {
+                    eventHandlerEntry.Value(eventArgs);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Subscribes to the specified type of events. The resulting cookie can be used for
+        /// unsubscribing.
+        /// </summary>
+        /// <param name="eventType">The type of the event.</param>
+        /// <param name="eventHandler">The event handler to invoke when the specified event type is raised.</param>
+        /// <returns></returns>
+        public object SubscribeEvent(Type eventType, Callback eventHandler) {
+            Debug.Assert(eventType != null, "Must specify an event type when subscribing to events.");
+            Debug.Assert(eventHandler != null, "Must specify an event handler when subscribing to events.");
+
+            string eventTypeKey = GetTypeKey(eventType);
+
+            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[eventTypeKey];
+            if (eventHandlerMap == null) {
+                eventHandlerMap = new Dictionary<string, Callback>();
+                _eventHandlers[eventTypeKey] = eventHandlerMap;
+            }
+
+            // Create a unique key representing the event handler instance...
+            // We use the time stamp as a cheap and dirty way to simulate something unique.
+
+            string eventHandlerKey = (new Date()).GetTime().ToString();
+            eventHandlerMap[eventHandlerKey] = eventHandler;
+
+            // The subscription cookie we use is an object with the two strings
+            // identifying the event handler uniquely - the event type key used to index
+            // into the top-level event handlers key/value pair list, and the handler key
+            // (as generated above) to index into the event-type-specific key/value pair list.
+            // Keep these in sync with Unsubscribe...
+
+            return new Dictionary<string, string>("type", eventTypeKey, "handler", eventHandlerKey);
+        }
+
+        /// <summary>
+        /// Unsubcribes from a previously subscribed-to event type.
+        /// </summary>
+        /// <param name="subscriptionCookie">The subscription cookie.</param>
+        public void UnsubscribeEvent(object subscriptionCookie) {
+            Debug.Assert(subscriptionCookie != null, "Must specify the subscription cookie when unsubscribing to events.");
+            Debug.Assert(Type.HasField(subscriptionCookie, "type") && Type.HasField(subscriptionCookie, "handler"),
+                         "A valid subscription cookie is an object with 'type' and 'handler' fields.");
+
+            Dictionary<string, string> keys = (Dictionary<string, string>)subscriptionCookie;
+
+            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[keys["type"]];
+            Debug.Assert(eventHandlerMap != null, "Invalid subscription cookie.");
+            Debug.Assert(eventHandlerMap.ContainsKey(keys["handler"]), "Invalid subscription cookie.");
+
+            eventHandlerMap.Remove(keys["handler"]);
+
+            if (eventHandlerMap.Count == 0) {
+                _eventHandlers.Remove(keys["type"]);
+            }
         }
 
         #endregion
