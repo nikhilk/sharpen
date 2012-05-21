@@ -51,6 +51,11 @@
       <Link>Properties\Sharpen.cs</Link>
     </Compile>
     <Compile Include="Application.cs" />
+    <Compile Include="Application.Services.cs">
+      <DependentUpon>Application.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRegistration.cs" />
+    <Compile Include="Utility\OptionsParser.cs" />
   </ItemGroup>
   <Import Project="$(ProgramFiles)\ScriptSharp\v1.0\ScriptSharp.targets" />
 </Project>

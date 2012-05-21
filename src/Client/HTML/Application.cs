@@ -18,17 +18,51 @@ namespace Sharpen.Html {
     /// </summary>
     public sealed partial class Application : IApplication, IContainer, IEventManager {
 
+        internal const string ServicesAttribute = "data-services";
+
         /// <summary>
         /// The current Application instance.
         /// </summary>
         public static readonly Application Current = new Application();
 
+        private readonly Dictionary<string, ServiceRegistration> _registeredServices;
+
         private Dictionary<string, object> _catalog;
         private Dictionary<string, Dictionary<string, Callback>> _eventHandlers;
+
+        static Application() {
+            Script.OnReady(delegate() {
+                // Use window.setTimeout to defer, in case the framework script and other
+                // app scripts are loaded using regular script tags, rather than using the
+                // script loader (in which case, OnReady could fire before all scripts are
+                // loaded).
+
+                Window.SetTimeout(delegate() {
+                    Application.Current.ActivateFragment(Document.Body, /* contentOnly */ false);
+                }, 0);
+            });
+        }
 
         private Application() {
             _catalog = new Dictionary<string, object>();
             _eventHandlers = new Dictionary<string, Dictionary<string, Callback>>();
+
+            _registeredServices = new Dictionary<string, ServiceRegistration>();
+        }
+
+        public void ActivateFragment(Element element, bool contentOnly) {
+            Debug.Assert(element != null);
+
+            if (element == Document.Body) {
+                // Perform app-level activation ... assuming the body element will only be
+                // activated once (by the framework itself)
+
+                SetupServices();
+            }
+        }
+
+        public void DeactivateFragment(Element element, bool contentOnly) {
+            Debug.Assert(element != null);
         }
 
         private string GetTypeKey(Type type) {
