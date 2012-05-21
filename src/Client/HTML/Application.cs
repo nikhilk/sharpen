@@ -20,12 +20,18 @@ namespace Sharpen.Html {
 
         internal const string ServicesAttribute = "data-services";
 
+        internal const string BehaviorNameKey = "behaviorName";
+        internal const string BehaviorsKey = "behaviors";
+        internal const string BehaviorsAttribute = "data-behavior";
+        internal const string BehaviorsSelector = "*[data-behavior]";
+
         /// <summary>
         /// The current Application instance.
         /// </summary>
         public static readonly Application Current = new Application();
 
         private readonly Dictionary<string, ServiceRegistration> _registeredServices;
+        private readonly Dictionary<string, BehaviorRegistration> _registeredBehaviors;
 
         private Dictionary<string, object> _catalog;
         private Dictionary<string, Dictionary<string, Callback>> _eventHandlers;
@@ -48,6 +54,7 @@ namespace Sharpen.Html {
             _eventHandlers = new Dictionary<string, Dictionary<string, Callback>>();
 
             _registeredServices = new Dictionary<string, ServiceRegistration>();
+            _registeredBehaviors = new Dictionary<string, BehaviorRegistration>();
         }
 
         public void ActivateFragment(Element element, bool contentOnly) {
@@ -59,10 +66,35 @@ namespace Sharpen.Html {
 
                 SetupServices();
             }
+
+            // Attach behaviors associated declaratively with the specified element and the
+            // contained elements.
+            if ((contentOnly == false) && element.HasAttribute(Application.BehaviorsAttribute)) {
+                AttachBehaviors(element);
+            }
+
+            ElementCollection extendedElements = element.QuerySelectorAll(Application.BehaviorsSelector);
+            for (int i = 0, extendedElementCount = extendedElements.Length; i < extendedElementCount; i++) {
+                AttachBehaviors(extendedElements[i]);
+            }
         }
 
         public void DeactivateFragment(Element element, bool contentOnly) {
             Debug.Assert(element != null);
+
+            // Detach behaviors associated with the element and the contained elements.
+            if ((contentOnly == false) && element.HasAttribute(Application.BehaviorsAttribute)) {
+                DetachBehaviors(element);
+            }
+
+            ElementCollection elements = element.QuerySelectorAll(Application.BehaviorsSelector);
+            int matchingElements = elements.Length;
+
+            if (matchingElements != 0) {
+                for (int i = 0; i < matchingElements; i++) {
+                    DetachBehaviors(elements[i]);
+                }
+            }
         }
 
         private string GetTypeKey(Type type) {
