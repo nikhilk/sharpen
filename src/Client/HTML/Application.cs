@@ -35,6 +35,7 @@ namespace Sharpen.Html {
 
         private Dictionary<string, object> _catalog;
         private Dictionary<string, Dictionary<string, Callback>> _eventHandlers;
+        private int _subscriptions;
 
         static Application() {
             Script.OnReady(delegate() {
@@ -52,6 +53,7 @@ namespace Sharpen.Html {
         private Application() {
             _catalog = new Dictionary<string, object>();
             _eventHandlers = new Dictionary<string, Dictionary<string, Callback>>();
+            _subscriptions = 0;
 
             _registeredServices = new Dictionary<string, ServiceRegistration>();
             _registeredBehaviors = new Dictionary<string, BehaviorRegistration>();
@@ -219,10 +221,7 @@ namespace Sharpen.Html {
                 _eventHandlers[eventTypeKey] = eventHandlerMap;
             }
 
-            // Create a unique key representing the event handler instance...
-            // We use the time stamp as a cheap and dirty way to simulate something unique.
-
-            string eventHandlerKey = (new Date()).GetTime().ToString();
+            string eventHandlerKey = (++_subscriptions).ToString();
             eventHandlerMap[eventHandlerKey] = eventHandler;
 
             // The subscription cookie we use is an object with the two strings
