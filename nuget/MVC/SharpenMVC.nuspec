@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>SharpenMVC</id>
+    <version>0.7.4.0</version>
+    <title>Sharpen MVC</title>
+    <authors>Nikhil Kothari</authors>
+    <summary>ASP.NET MVC support for creating Sharpen-based modern HTML5 applications.</summary> 
+    <description>
+      The package provides two sets of components: a set of ASP.NET MVC helpers and a set of runtime scripts.
+      The MVC helpers allow rendering scripts and data within MVC views to implement the client half of the application.
+      The scripts provide functionality ranging from script loading, to IoC, MVVM, data-binding and more.
+    </description>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <language>en-US</language>
+    <projectUrl>https://github.com/nikhilk/sharpen</projectUrl>
+    <iconUrl>http://projects.nikhilk.net/Content/Projects/ScriptSharp/Logo.png</iconUrl>
+    <tags>script javascript ajax html html5 mobile asp.net mvc scriptsharp</tags>
+  </metadata>
+  <files>
+    <file src="..\..\bin\Release\Sharpen.Server.dll" target="lib" />
+    <file src="..\..\bin\Release\Sharpen.Server.xml" target="lib" />
+    <file src="..\..\bin\Release\mscorlib.js" target="content\Content\Scripts" />
+    <file src="..\..\bin\Release\mscorlib.debug.js" target="content\Content\Scripts" />
+    <file src="..\..\bin\Release\Sharpen.Loader.js" target="content\Content\Scripts" />
+    <file src="..\..\bin\Release\Sharpen.Loader.debug.js" target="content\Content\Scripts" />
+    <file src="web.config.transform" target="content" />
+  </files>
+</package>
