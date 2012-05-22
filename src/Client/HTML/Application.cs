@@ -29,6 +29,13 @@ namespace Sharpen.Html {
 
         internal const string ModelTypeAttribute = "data-model-type";
 
+        internal const string BindingsAttribute = "data-bindings";
+        internal const string BindingsSelector = "*[data-bindings]";
+        internal static readonly RegularExpression BindingsRegex =
+            new RegularExpression(@"([a-z\.\-]+)\s*:\s*([a-z]+)\s+([^;]*)\s*\;", "gi");
+        internal static readonly RegularExpression PropertyPathRegex =
+            new RegularExpression(@"[a-z0-9\.]+", "gi");
+
         /// <summary>
         /// The current Application instance.
         /// </summary>
@@ -42,6 +49,8 @@ namespace Sharpen.Html {
 
         private readonly Dictionary<string, ServiceRegistration> _registeredServices;
         private readonly Dictionary<string, BehaviorRegistration> _registeredBehaviors;
+        private readonly Dictionary<string, ExpressionFactory> _registeredExpressions;
+        private readonly Dictionary<string, BinderFactory> _registeredBinders;
 
         private Dictionary<string, object> _catalog;
         private Dictionary<string, Dictionary<string, Callback>> _subscriptions;
@@ -71,10 +80,22 @@ namespace Sharpen.Html {
 
             _registeredServices = new Dictionary<string, ServiceRegistration>();
             _registeredBehaviors = new Dictionary<string, BehaviorRegistration>();
+            _registeredExpressions = new Dictionary<string, ExpressionFactory>();
+            _registeredBinders = new Dictionary<string, BinderFactory>();
 
             RegisterObject(typeof(IApplication), this);
             RegisterObject(typeof(IContainer), this);
             RegisterObject(typeof(IEventManager), this);
+
+            RegisterBehavior(BinderManager.BehaviorName, typeof(BinderManager));
+            RegisterExpression("bind", ProcessModelExpression);
+            RegisterExpression("init", ProcessModelExpression);
+            RegisterExpression("link", ProcessModelExpression);
+            RegisterExpression("exec", ProcessModelExpression);
+            RegisterBinder("text", BindContent);
+            RegisterBinder("html", BindContent);
+            RegisterBinder("value", BindValue);
+            RegisterBinder("visibility", BindVisibility);
         }
 
         /// <summary>
@@ -131,6 +152,18 @@ namespace Sharpen.Html {
                 }
 
                 _model = model;
+            }
+
+            // Create expressions and bindings associated with the specified elements and
+            // the contained elements. Do this first, as this allows behaviors to look at
+            // values set as a result of bindings when they are attached.
+            if ((contentOnly == false) && element.HasAttribute(Application.BindingsAttribute)) {
+                SetupBindings(element, model);
+            }
+
+            ElementCollection boundElements = element.QuerySelectorAll(Application.BindingsSelector);
+            for (int i = 0, boundElementCount = boundElements.Length; i < boundElementCount; i++) {
+                SetupBindings(boundElements[i], model);
             }
 
             // Attach behaviors associated declaratively with the specified element and the

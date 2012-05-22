@@ -57,9 +57,23 @@
     <Compile Include="Application.Behaviors.cs">
       <DependentUpon>Application.cs</DependentUpon>
     </Compile>
+    <Compile Include="Application.Bindings.cs">
+      <DependentUpon>Application.cs</DependentUpon>
+    </Compile>
     <Compile Include="ServiceRegistration.cs" />
     <Compile Include="Behavior.cs" />
     <Compile Include="BehaviorRegistration.cs" />
+    <Compile Include="Binder.cs" />
+    <Compile Include="BinderFactory.cs" />
+    <Compile Include="BinderManager.cs" />
+    <Compile Include="Expression.cs" />
+    <Compile Include="ExpressionFactory.cs" />
+    <Compile Include="Bindings\BindExpression.cs" />
+    <Compile Include="Bindings\ContentBinder.cs" />
+    <Compile Include="Bindings\EventBinder.cs" />
+    <Compile Include="Bindings\PropertyBinder.cs" />
+    <Compile Include="Bindings\ValueBinder.cs" />
+    <Compile Include="Bindings\VisibilityBinder.cs" />
     <Compile Include="Utility\OptionsParser.cs" />
   </ItemGroup>
   <Import Project="$(ProgramFiles)\ScriptSharp\v1.0\ScriptSharp.targets" />
