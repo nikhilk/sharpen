@@ -1,23 +1,28 @@
-Sharpen.HTML.js
-- Templates
-- Visual States
-- Triggers and actions (incl. support for handling model events)
-- Regions (with each region having a separate/child view model)
-
-Docs + samples
-
-Sharpen.HTML.Data
-Sharpen.HTML.Net
-
 Sharpen.js
 - Promises
+- Anything related to messaging and threading (i.e. web workers)?
 
 Sharpen.Global.xx.js
 - Generation of date/number formatting info for different cultures
 
+Sharpen.HTML.js
+- Templates
+- Visual States
+- Navigation (+ mvc) and history management
+- Triggers and actions (incl. support for handling model events)
+- Regions (with each region having a separate/child view model)
+
+Sharpen.HTML.jQuery
+- Support for invoking jQuery plugins using same pattern as behaviors
+
+Sharpen.HTML.Data
+
+Sharpen.HTML.Net
+
 Sharpen.Server.dll
-
-
-Nuget support
 - MVC helpers to write out declarative bits
   (data-modelType, data-model, data-behaviors, data-foo etc.
+
+Nuget support
+
+Docs + samples
