@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Html;
+using System.Runtime.CompilerServices;
+using Sharpen.Html.Utility;
 
 namespace Sharpen.Html {
 
@@ -25,17 +27,27 @@ namespace Sharpen.Html {
         internal const string BehaviorsAttribute = "data-behavior";
         internal const string BehaviorsSelector = "*[data-behavior]";
 
+        internal const string ModelTypeAttribute = "data-model-type";
+
         /// <summary>
         /// The current Application instance.
         /// </summary>
         public static readonly Application Current = new Application();
 
+        /// <summary>
+        /// Whether to automatically initialize the application once the page has
+        /// loaded along with referenced scripts.
+        /// </summary>
+        public static bool AutoInit = true;
+
         private readonly Dictionary<string, ServiceRegistration> _registeredServices;
         private readonly Dictionary<string, BehaviorRegistration> _registeredBehaviors;
 
         private Dictionary<string, object> _catalog;
-        private Dictionary<string, Dictionary<string, Callback>> _eventHandlers;
-        private int _subscriptions;
+        private Dictionary<string, Dictionary<string, Callback>> _subscriptions;
+        private int _subscriptionCount;
+
+        private object _model;
 
         static Application() {
             Script.OnReady(delegate() {
@@ -45,28 +57,80 @@ namespace Sharpen.Html {
                 // loaded).
 
                 Window.SetTimeout(delegate() {
-                    Application.Current.ActivateFragment(Document.Body, /* contentOnly */ false);
+                    if (AutoInit) {
+                        Application.Current.ActivateFragment(Document.Body, /* contentOnly */ false);
+                    }
                 }, 0);
             });
         }
 
         private Application() {
             _catalog = new Dictionary<string, object>();
-            _eventHandlers = new Dictionary<string, Dictionary<string, Callback>>();
-            _subscriptions = 0;
+            _subscriptions = new Dictionary<string, Dictionary<string, Callback>>();
+            _subscriptionCount = 0;
 
             _registeredServices = new Dictionary<string, ServiceRegistration>();
             _registeredBehaviors = new Dictionary<string, BehaviorRegistration>();
+
+            RegisterObject(typeof(IApplication), this);
+            RegisterObject(typeof(IContainer), this);
+            RegisterObject(typeof(IEventManager), this);
         }
 
-        public void ActivateFragment(Element element, bool contentOnly) {
+        /// <summary>
+        /// The model object associated with the application.
+        /// </summary>
+        public object Model {
+            get {
+                return _model;
+            }
+        }
+
+        /// <summary>
+        /// Activates a specified element and its children by instantiating any
+        /// declaratively specified behaviors or bindings within the markup.
+        /// </summary>
+        /// <param name="element">The element to activate.</param>
+        /// <param name="contentOnly">Whether the element should be activated, or only its contained content.</param>
+        [AlternateSignature]
+        public extern void ActivateFragment(Element element, bool contentOnly);
+
+        /// <summary>
+        /// Activates a specified element and its children by instantiating any
+        /// declaratively specified behaviors or bindings within the markup.
+        /// </summary>
+        /// <param name="element">The element to activate.</param>
+        /// <param name="contentOnly">Whether the element should be activated, or only its contained content.</param>
+        /// <param name="model">The model to bind to.</param>
+        [AlternateSignature]
+        public void ActivateFragment(Element element, bool contentOnly, object model) {
             Debug.Assert(element != null);
 
             if (element == Document.Body) {
-                // Perform app-level activation ... assuming the body element will only be
-                // activated once (by the framework itself)
+                // Perform app-level activation (tied to body initialization)
 
+                // Setup top-level services specified declaratively.
                 SetupServices();
+
+                // Create the model declaratively associated with the application.
+                if (model == null) {
+                    string modelTypeName = (string)Document.Body.GetAttribute(ModelTypeAttribute);
+                    if (String.IsNullOrEmpty(modelTypeName) == false) {
+                        Type modelType = Type.GetType(modelTypeName);
+                        Debug.Assert(modelType != null, "Could not resolve model '" + modelTypeName + "'");
+
+                        model = GetObject(modelType);
+
+                        IInitializable initializableModel = model as IInitializable;
+                        if (initializableModel != null) {
+                            Dictionary<string, object> modelData = OptionsParser.GetOptions(element, "model");
+                            initializableModel.BeginInitialization(modelData);
+                            initializableModel.EndInitialization();
+                        }
+                    }
+                }
+
+                _model = model;
             }
 
             // Attach behaviors associated declaratively with the specified element and the
@@ -81,6 +145,12 @@ namespace Sharpen.Html {
             }
         }
 
+        /// <summary>
+        /// Deactivates the specified element and its children by disposing any
+        /// behaviors or binding instances attached to the elements.
+        /// </summary>
+        /// <param name="element">The element to deactivate.</param>
+        /// <param name="contentOnly">Whether the element should be deactivated, or only its contained content.</param>
         public void DeactivateFragment(Element element, bool contentOnly) {
             Debug.Assert(element != null);
 
@@ -191,7 +261,7 @@ namespace Sharpen.Html {
 
             string eventTypeKey = GetTypeKey(eventArgs.GetType());
 
-            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[eventTypeKey];
+            Dictionary<string, Callback> eventHandlerMap = _subscriptions[eventTypeKey];
             if (eventHandlerMap != null) {
                 // TODO: Handle the case where a subscriber unsubscribes while we're iterating
                 //       Should we do it here by copying/cloning the list, or should we handle it
@@ -215,13 +285,13 @@ namespace Sharpen.Html {
 
             string eventTypeKey = GetTypeKey(eventType);
 
-            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[eventTypeKey];
+            Dictionary<string, Callback> eventHandlerMap = _subscriptions[eventTypeKey];
             if (eventHandlerMap == null) {
                 eventHandlerMap = new Dictionary<string, Callback>();
-                _eventHandlers[eventTypeKey] = eventHandlerMap;
+                _subscriptions[eventTypeKey] = eventHandlerMap;
             }
 
-            string eventHandlerKey = (++_subscriptions).ToString();
+            string eventHandlerKey = (++_subscriptionCount).ToString();
             eventHandlerMap[eventHandlerKey] = eventHandler;
 
             // The subscription cookie we use is an object with the two strings
@@ -244,14 +314,14 @@ namespace Sharpen.Html {
 
             Dictionary<string, string> keys = (Dictionary<string, string>)subscriptionCookie;
 
-            Dictionary<string, Callback> eventHandlerMap = _eventHandlers[keys["type"]];
+            Dictionary<string, Callback> eventHandlerMap = _subscriptions[keys["type"]];
             Debug.Assert(eventHandlerMap != null, "Invalid subscription cookie.");
             Debug.Assert(eventHandlerMap.ContainsKey(keys["handler"]), "Invalid subscription cookie.");
 
             eventHandlerMap.Remove(keys["handler"]);
 
             if (eventHandlerMap.Count == 0) {
-                _eventHandlers.Remove(keys["type"]);
+                _subscriptions.Remove(keys["type"]);
             }
         }
 

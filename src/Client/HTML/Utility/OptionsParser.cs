@@ -31,13 +31,17 @@ namespace Sharpen.Html.Utility {
 
             string optionsText = (string)element.GetAttribute("data-" + name);
             if (String.IsNullOrEmpty(optionsText) == false) {
+                if (optionsText.StartsWith("{")) {
+                    // Vanilla JSON object
+                    return Json.ParseData<Dictionary<string, object>>(optionsText);
+                }
+
+                // Treat it as our pseudo-JSON/CSS-esque syntax which requires a bit of rewriting
+                // before it can be parsed as JSON.
                 return Parse(optionsText);
             }
             else {
-                // Create an empty object if no options were declaratively specified
-                // so that behaviors always get an object instance in the call to
-                // Initialize.
-
+                // Create an empty object if no options were declaratively specified.
                 return new Dictionary<string, object>();
             }
         }
