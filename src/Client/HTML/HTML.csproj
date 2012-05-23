@@ -60,6 +60,9 @@
     <Compile Include="Application.Bindings.cs">
       <DependentUpon>Application.cs</DependentUpon>
     </Compile>
+    <Compile Include="Application.Templates.cs">
+      <DependentUpon>Application.cs</DependentUpon>
+    </Compile>
     <Compile Include="ServiceRegistration.cs" />
     <Compile Include="Behavior.cs" />
     <Compile Include="BehaviorRegistration.cs" />
@@ -68,6 +71,8 @@
     <Compile Include="BinderManager.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="ExpressionFactory.cs" />
+    <Compile Include="TemplateEngine.cs" />
+    <Compile Include="Template.cs" />
     <Compile Include="Bindings\BindExpression.cs" />
     <Compile Include="Bindings\ContentBinder.cs" />
     <Compile Include="Bindings\EventBinder.cs" />

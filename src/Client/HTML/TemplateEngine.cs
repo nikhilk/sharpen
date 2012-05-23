@@ -1,0 +1,17 @@
+// TemplateEngine.cs
+// Sharpen/Client/HTML
+// This source code is subject to terms and conditions of the Apache License, Version 2.0.
+//
+
+using System;
+using System.Html;
+
+namespace Sharpen.Html {
+
+    /// <summary>
+    /// Creates an instance of a template from the specified content.
+    /// </summary>
+    /// <param name="content">The content representing the template.</param>
+    /// <returns>The template instance.</returns>
+    public delegate Template TemplateEngine(string content);
+}

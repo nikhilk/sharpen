@@ -35,19 +35,30 @@ namespace Sharpen.Html {
             Debug.Assert(Type.GetField(model, value) != null, "The model does not have a member named '" + value + '"');
 
             if (expressionType == "exec") {
+                // TODO: Support scenarios where value is parent.method, or root.method (for invoking
+                //       a method on the parent model or root model... useful in templating scenarios
+                //       where items are not bound to view model but an object retrieved from the
+                //       view model.
+
                 // When the expression is exec, the value is interpreted as a reference to a method
                 // on the model. An invoker function is created that when called invokes the referenced
                 // method in context of the model instance. The expression itself contains a delegate
                 // to this dynamically created invoker function.
 
-                // A method 
                 // function _(e) {
-                //   var result = this.modelMethod(e);
+                //   var result = this.modelMethod(e, this);
                 //   if (result) { e.preventDefault(); }
                 // }
 
-                string invokerCode = "var result = this." + value + "(e); if (result) { e.preventDefault(); }";
-                return new Expression(Delegate.Create(model, new Function(invokerCode, "e")), /* canChange */ false);
+                // TODO: If bound to parent/root, generated this instead:
+                // function _(e) {
+                //   var model = Application.Current.GetModel(element.parentElement);
+                //   var result = this.modelMethod(e, model);
+                //   if (result) { e.preventDefault(); }
+                // }
+
+                string invokerCode = "var result = this." + value + "(e, this); if (result) { e.preventDefault(); }";
+                return new Expression(Delegate.Create(model, new Function(invokerCode, "e", "model")), /* canChange */ false);
             }
 
             // TODO: Eventually stop with the () business if we can switch over to true properties

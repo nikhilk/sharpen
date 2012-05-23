@@ -51,6 +51,8 @@ namespace Sharpen.Html {
         private readonly Dictionary<string, BehaviorRegistration> _registeredBehaviors;
         private readonly Dictionary<string, ExpressionFactory> _registeredExpressions;
         private readonly Dictionary<string, BinderFactory> _registeredBinders;
+        private readonly Dictionary<string, TemplateEngine> _registeredTemplateEngines;
+        private readonly Dictionary<string, Template> _registeredTemplates;
 
         private Dictionary<string, object> _catalog;
         private Dictionary<string, Dictionary<string, Callback>> _subscriptions;
@@ -82,6 +84,8 @@ namespace Sharpen.Html {
             _registeredBehaviors = new Dictionary<string, BehaviorRegistration>();
             _registeredExpressions = new Dictionary<string, ExpressionFactory>();
             _registeredBinders = new Dictionary<string, BinderFactory>();
+            _registeredTemplateEngines = new Dictionary<string, TemplateEngine>();
+            _registeredTemplates = new Dictionary<string, Template>();
 
             RegisterObject(typeof(IApplication), this);
             RegisterObject(typeof(IContainer), this);

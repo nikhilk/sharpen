@@ -20,6 +20,25 @@ namespace Sharpen.Html.Bindings {
         protected override void UpdateTarget(object target, string propertyName, object value) {
             Element targetElement = (Element)target;
 
+            // Convert the value into a string if it isn't already... do this with a template
+            // if one is specified, or resort to ToString as a fallback.
+            string content = null;
+            if (value is string) {
+                content = (string)value;
+            }
+            else {
+                string templateName = (string)targetElement.GetAttribute("data-template");
+                if (String.IsNullOrEmpty(templateName) == false) {
+                    Template template = Application.Current.GetTemplate(templateName);
+                    if (template != null) {
+                        content = template(value);
+                    }
+                }
+                else {
+                    content = value.ToString();
+                }
+            }
+
             // Raise contentUpdating event, so it allows any behaviors attached to this
             // element to be notified
             MutableEvent updatingEvent = Document.CreateEvent("Custom");
@@ -30,12 +49,12 @@ namespace Sharpen.Html.Bindings {
             Application.Current.DeactivateFragment(targetElement, /* contentOnly */ true);
 
             // Update the element with the new value.
-            base.UpdateTarget(targetElement, propertyName, value);
+            base.UpdateTarget(targetElement, propertyName, content);
 
             // If the property that was updated was the innerHTML, then activate any
             // binding expressions or behaviors that might have been specified within the
             // new markup.
-            if (propertyName == "innerHTML") {
+            if ((String.IsNullOrEmpty(content) == false) && (propertyName == "innerHTML")) {
                 BinderManager binderManager = (BinderManager)Behavior.GetBehavior(targetElement, typeof(BinderManager));
                 if (binderManager != null) {
                     Application.Current.ActivateFragment(targetElement, /* contentOnly */ true, binderManager.Model);
