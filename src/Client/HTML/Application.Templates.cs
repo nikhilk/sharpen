@@ -4,12 +4,35 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Html;
+using Sharpen.Html.Utility;
 
 namespace Sharpen.Html {
 
     public sealed partial class Application {
+
+        /// <summary>
+        /// Compiles a template instance from the specified template type and content.
+        /// </summary>
+        /// <param name="type">The template engine to use to compile the template.</param>
+        /// <param name="content">The template content.</param>
+        /// <param name="options">Any options to be passed to the template engine.</param>
+        /// <returns>The newly compiled template instance.</returns>
+        public Template CompileTemplate(string type, string content, Dictionary<string, object> options) {
+            Debug.Assert(String.IsNullOrEmpty(type) == false);
+            Debug.Assert(String.IsNullOrEmpty(content) == false);
+
+            TemplateEngine templateEngine = _registeredTemplateEngines[type];
+            Debug.Assert(templateEngine != null, "No template engine was found to be able to process the template typed '" + type + "'.");
+
+            if (templateEngine == null) {
+                return null;
+            }
+
+            return templateEngine(content, options);
+        }
 
         /// <summary>
         /// Gets a template instance from the specified template name. The specified name
@@ -29,25 +52,22 @@ namespace Sharpen.Html {
                 return template;
             }
 
-            ScriptElement templateElement = (ScriptElement)Document.GetElementById(name);
-            Debug.Assert(templateElement != null, "Could not find a template with the name '" + name + "'.");
+            Element templateElement = Document.GetElementById(name);
+            Debug.Assert(templateElement != null, "Could not find a template element with the id '" + name + "'.");
             if (templateElement == null) {
                 return null;
             }
 
             // Parse the template using the associated template engine
-            string templateMimeType = templateElement.Type;
-            Debug.Assert(String.IsNullOrEmpty(templateMimeType) == false, "A template must have a valid type attribute set.");
+            string templateType = (string)templateElement.GetAttribute(TemplateTypeAttribute);
+            Debug.Assert(String.IsNullOrEmpty(templateType) == false, "A template must have a valid data-template attribute set.");
 
-            TemplateEngine templateEngine = _registeredTemplateEngines[templateMimeType];
-            Debug.Assert(templateEngine != null, "No template engine was found to be able to process the templated named '" + name + "'.");
-
-            if (templateEngine == null) {
-                return null;
-            }
+            template = CompileTemplate(templateType,
+                                       templateElement.TextContent,
+                                       OptionsParser.GetOptions(templateElement, TemplateOptionsAttribute));
 
             // Cache the newly parsed template for future use
-            _registeredTemplates[name] = template = templateEngine(templateElement.TextContent);
+            _registeredTemplates[name] = template;
 
             return template;
         }
@@ -74,12 +94,10 @@ namespace Sharpen.Html {
         public void RegisterTemplateEngine(string name, TemplateEngine engine) {
             Debug.Assert(String.IsNullOrEmpty(name) == false);
             Debug.Assert(engine != null);
-
-            string templateMimeType = "text/template-" + name;
-            Debug.Assert(_registeredTemplateEngines.ContainsKey(templateMimeType) == false,
+            Debug.Assert(_registeredTemplateEngines.ContainsKey(name) == false,
                          "A template engine with name '" + name + "' was already registered.");
 
-            _registeredTemplateEngines[templateMimeType] = engine;
+            _registeredTemplateEngines[name] = engine;
         }
     }
 }

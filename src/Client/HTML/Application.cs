@@ -36,6 +36,9 @@ namespace Sharpen.Html {
         internal static readonly RegularExpression PropertyPathRegex =
             new RegularExpression(@"[a-z0-9\.]+", "gi");
 
+        internal const string TemplateTypeAttribute = "data-template";
+        internal const string TemplateOptionsAttribute = "template-options";
+
         /// <summary>
         /// The current Application instance.
         /// </summary>

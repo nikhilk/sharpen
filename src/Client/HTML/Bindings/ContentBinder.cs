@@ -31,7 +31,7 @@ namespace Sharpen.Html.Bindings {
                 if (String.IsNullOrEmpty(templateName) == false) {
                     Template template = Application.Current.GetTemplate(templateName);
                     if (template != null) {
-                        content = template(value);
+                        content = template(value, /* index */ 0, /* context */ null);
                     }
                 }
                 else {

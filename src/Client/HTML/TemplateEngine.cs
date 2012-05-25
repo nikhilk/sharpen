@@ -4,6 +4,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Html;
 
 namespace Sharpen.Html {
@@ -12,6 +13,7 @@ namespace Sharpen.Html {
     /// Creates an instance of a template from the specified content.
     /// </summary>
     /// <param name="content">The content representing the template.</param>
+    /// <param name="options">Any options associated with the template.</param>
     /// <returns>The template instance.</returns>
-    public delegate Template TemplateEngine(string content);
+    public delegate Template TemplateEngine(string content, Dictionary<string, object> options);
 }
