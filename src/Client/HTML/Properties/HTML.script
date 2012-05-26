@@ -4,4 +4,6 @@
 (function() {
 "use strict";
 #include[as-is] "%code%"
+
+#include "..\Scripts\TemplateEngine.js"
 })();

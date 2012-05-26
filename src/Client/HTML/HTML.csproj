@@ -80,6 +80,7 @@
     <Compile Include="Bindings\ValueBinder.cs" />
     <Compile Include="Bindings\VisibilityBinder.cs" />
     <Compile Include="Utility\OptionsParser.cs" />
+    <Content Include="Scripts\TemplateEngine.js" />
   </ItemGroup>
   <Import Project="$(ProgramFiles)\ScriptSharp\v1.0\ScriptSharp.targets" />
 </Project>
