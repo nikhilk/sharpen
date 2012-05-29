@@ -9,12 +9,12 @@ function Tuple(first, second, third) {
 }
 
 function StringBuilder(s) {
-  this._parts = isValue(s) ? [s] : [];
+  this._parts = isValue(s) && s !== '' ? [s] : [];
   this.isEmpty = this._parts.length == 0;
 }
 var StringBuilder$proto = {
   append: function(s) {
-    if (isValue(s)) {
+    if (isValue(s) && s !== '') {
       this._parts.push(s);
       this.isEmpty = false;
     }

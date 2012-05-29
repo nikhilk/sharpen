@@ -79,6 +79,24 @@
     sb.append([1,2]);
     QUnit.equal(sb.toString(':'), 'abc:123:true:false:1,2');
   });
+
+  test('isEmpty', function() {
+    var sb = new ss.StringBuilder();
+    QUnit.equal(sb.isEmpty, true);
+
+    sb.append('');
+    QUnit.equal(sb.isEmpty, true);
+
+    sb.append(null);
+    QUnit.equal(sb.isEmpty, true);
+
+    sb.append(undefined);
+    QUnit.equal(sb.isEmpty, true);
+
+    sb.append(0);
+    QUnit.equal(sb.isEmpty, false);
+    QUnit.equal(sb.toString(), '0');
+  });
   </script>
 </body>
 
