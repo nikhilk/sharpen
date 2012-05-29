@@ -77,10 +77,10 @@ extend(String.prototype, {
     return this.substr(0, prefix.length) == prefix;
   },
   padLeft: function(totalWidth, ch) {
-    return (this.length < totalWidth) ? stringFromChar(ch || ' ', totalWidth - this.length) + this : this;
+    return (this.length < totalWidth) ? stringFromChar(ch || ' ', totalWidth - this.length) + this : this.valueOf();
   },
   padRight: function(totalWidth, ch) {
-    return (this.length < totalWidth) ? this + stringFromChar(ch || ' ', totalWidth - this.length) : this;
+    return (this.length < totalWidth) ? this + stringFromChar(ch || ' ', totalWidth - this.length) : this.valueOf();
   },
   trimEnd: function() {
     return this.replace(/\s*$/, '');
@@ -90,7 +90,7 @@ extend(String.prototype, {
   },
   insert: function(index, value) {
     if (!value) {
-      return this;
+      return this.valueOf();
     }
     if (!index) {
       return value + this;
